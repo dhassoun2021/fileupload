@@ -18,8 +18,8 @@ public class MemoryDataStorage implements IDataStorage{
         this.fileEncryptionService = fileEncryptionService;
     }
 
-    public FileInfo saveFile (InputStream inputStream, String directoryName, String fileName) throws IOException {
-        try {
+    public FileInfo saveFile (InputStream inputStream, String directoryName, String fileName) throws FileUploadException {
+
             String pathFile = directoryName + "/" + fileName;
             File destFile = new File(pathFile);
             fileEncryptionService.encrypt(inputStream, destFile);
@@ -28,40 +28,25 @@ public class MemoryDataStorage implements IDataStorage{
             FileInfo fileInfo = new FileInfo(id, pathFile, fileName);
             datas.put(id, fileInfo);
             return fileInfo;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
-    public FileInfo readFile (String id) throws IOException {
+    public FileInfo readFile (String id) throws FileNotFoundException, FileUploadException {
         FileInfo fileInfo = datas.get(id);
         if (fileInfo == null) {
             throw new FileNotFoundException ("File does not exists for id " + id);
         }
         try {
-            //OutputStream outputStream = new FileOutputStream(fileInfo.getName());
             File fileEncrypted = new File(fileInfo.getPath());
             File fileDecrypted = File.createTempFile("decrypted", "tmp");
             fileEncryptionService.decrypt(fileEncrypted, fileDecrypted);
-            //Files.copy(Path.of(fileInfo.getPath()),outputStream);
-            //fileInfo.setOutputStream(outputStream);
             fileInfo.setFile(fileDecrypted);
             return fileInfo;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            throw new FileUploadException(ex.getMessage());
         }
     }
 
-    private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) throws IOException {
-        int read;
-        final int BUFFER_LENGTH = 1024;
-        final byte[] buffer = new byte[BUFFER_LENGTH];
-        OutputStream out = new FileOutputStream(uploadedFileLocation);
-        while ((read = uploadedInputStream.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
-        out.flush();
-        out.close();
-    }
+
 
 }

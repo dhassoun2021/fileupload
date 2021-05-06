@@ -21,17 +21,12 @@ public class FileEncryptionService {
     /**
      * Constructor: creates ciphers
      */
-    public FileEncryptionService()  {
-        // create RSA public key cipher
-     //   pkCipher = Cipher.getInstance("RSA");
-
-        // create AES shared key cipher
+    public FileEncryptionService() throws FileUploadException {
         try {
-     aesCipher = Cipher.getInstance("AES");
-
-         makeKey();
+            aesCipher = Cipher.getInstance("AES");
+            makeKey();
      } catch (GeneralSecurityException ex) {
-         throw new RuntimeException(ex);
+         throw new FileUploadException(ex.getMessage());
      }
     }
 
@@ -50,37 +45,70 @@ public class FileEncryptionService {
     /**
      * Encrypts and then copies the contents of a given file.
      */
-    public void encrypt(File in, File out) throws IOException, InvalidKeyException {
-        aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
-
-        FileInputStream is = new FileInputStream(in);
-        CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
-
-        copy(is, os);
-
-        os.close();
+    public void encrypt(File in, File out)  throws FileUploadException {
+        CipherOutputStream os = null;
+        try {
+            aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
+            FileInputStream is = new FileInputStream(in);
+            os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
+            copy(is, os);
+        } catch (IOException | InvalidKeyException ex) {
+            throw new FileUploadException(ex.getMessage());
+        }finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+            } catch (IOException ex) {
+                throw new FileUploadException(ex.getMessage());
+            }
+        }
     }
 
-    public void encrypt(InputStream in, File out) throws IOException, InvalidKeyException {
-        aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
-        CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
-        copy(in, os);
-        os.close();
+    public void encrypt(InputStream in, File out) throws FileUploadException {
+        CipherOutputStream os = null;
+        try {
+            aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
+            os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
+            copy(in, os);
+        } catch (IOException | InvalidKeyException ex) {
+            throw new FileUploadException(ex.getMessage());
+        }finally {
+
+            try {
+                os.close();
+            } catch (IOException ex) {
+                throw new FileUploadException(ex.getMessage());
+            }
+        }
     }
 
     /**
      * Decrypts and then copies the contents of a given file.
      */
-    public void decrypt(File in, File out) throws IOException, InvalidKeyException {
-        aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
+    public void decrypt(File in, File out) throws FileUploadException {
+        CipherInputStream is = null;
+        FileOutputStream os = null;
+        try {
+            aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
+            is = new CipherInputStream(new FileInputStream(in), aesCipher);
+            os = new FileOutputStream(out);
+            copy(is, os);
+        } catch (IOException | InvalidKeyException ex) {
+            throw new FileUploadException(ex.getMessage());
+        } finally {
 
-        CipherInputStream is = new CipherInputStream(new FileInputStream(in), aesCipher);
-        FileOutputStream os = new FileOutputStream(out);
-
-        copy(is, os);
-
-        is.close();
-        os.close();
+            try {
+                if (is != null) {
+                    is.close();
+                }
+                if (os != null) {
+                    os.close();
+                }
+            } catch (IOException ex) {
+                throw new FileUploadException(ex.getMessage());
+            }
+        }
     }
 
     /**

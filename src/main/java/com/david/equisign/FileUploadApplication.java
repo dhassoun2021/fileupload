@@ -16,14 +16,18 @@ public class FileUploadApplication extends Application<BasicConfiguration> {
     public void run(BasicConfiguration basicConfiguration, Environment environment) {
         //register classes
         int defaultSize = basicConfiguration.getDefaultSize();
-        FileEncryptionService fileEncryptionService = new FileEncryptionService();
-        IDataStorage dataStorage = new MemoryDataStorage(fileEncryptionService);
-        FileUploadResource fileUploadResource = new FileUploadResource(basicConfiguration,dataStorage);
+        try {
+            FileEncryptionService fileEncryptionService = new FileEncryptionService();
+            IDataStorage dataStorage = new MemoryDataStorage(fileEncryptionService);
+            FileUploadResource fileUploadResource = new FileUploadResource(basicConfiguration, dataStorage);
 
-        environment
-                .jersey()
-                .register(fileUploadResource);
-        environment.jersey().register(MultiPartFeature.class);
+            environment
+                    .jersey()
+                    .register(fileUploadResource);
+            environment.jersey().register(MultiPartFeature.class);
+        } catch (FileUploadException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override

@@ -35,7 +35,8 @@ public class FileUploadResource {
            LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
           FileInfo fileInfo = dataStorage.saveFile(inputStream,configuration.getUploadsDir(),contentDisposition.getFileName());
            return Response.ok(fileInfo.getId()).build();
-       } catch (IOException ex) {
+       } catch (FileUploadException ex) {
+           LOG.log(Level.SEVERE,"Error with upload file " + ex.getMessage());
            return Response.serverError().build();
        }
 
@@ -50,7 +51,8 @@ public class FileUploadResource {
             return Response.ok(fileInfo.getFile(),MediaType.APPLICATION_OCTET_STREAM).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
         } catch (FileNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (IOException ex) {
+        } catch (FileUploadException ex) {
+            LOG.log(Level.SEVERE,"Error with download  file " + idFile + " " +ex.getMessage());
             return Response.serverError().build();
         }
 
