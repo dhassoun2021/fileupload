@@ -28,6 +28,10 @@ public class BasicConfiguration extends Configuration {
         this.defaultSize = defaultSize;
     }
 
+    public BasicConfiguration () {
+        defaultSize = 0;
+    }
+
     public int getDefaultSize() {
         return defaultSize;
     }
@@ -42,6 +46,10 @@ public class BasicConfiguration extends Configuration {
 
     public String getTmpDir() {
         return tmpDir;
+    }
+
+    public void setUploadsDir(String uploadsDir) {
+        this.uploadsDir = uploadsDir;
     }
 
     public void setTmpDir(String tmpDir) {

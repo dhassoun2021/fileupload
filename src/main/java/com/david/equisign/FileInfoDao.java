@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Store information about file uploaded in memory
+ */
 public class FileInfoDao implements IFileInfoDao{
 
     private static FileInfoDao fileInfoDao = new FileInfoDao();

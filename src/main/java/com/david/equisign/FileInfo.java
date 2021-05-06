@@ -2,11 +2,24 @@ package com.david.equisign;
 
 import java.io.File;
 
-
+/**
+ * Information about file uploaded
+ */
 public class FileInfo {
 
+    /**
+     * Id generated when saving file
+     */
     private String id;
+
+    /**
+     * Abolute path of file
+     */
     private String path;
+
+    /**
+     * relative name of file
+     */
     private String name;
     private File file;
 
