@@ -18,7 +18,7 @@ public class FileUploadApplication extends Application<BasicConfiguration> {
         //register classes
         try {
             FileEncryptionService fileEncryptionService = FileEncryptionService.getInstance();
-            IDataStorage dataStorage = new MemoryDataStorage(fileEncryptionService);
+            IDataStorage dataStorage = new MemoryDataStorage(fileEncryptionService,basicConfiguration);
             FileUploadResource fileUploadResource = new FileUploadResource(basicConfiguration, dataStorage);
 
             environment

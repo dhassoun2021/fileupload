@@ -1,8 +1,7 @@
 package com.david.equisign;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
+
 
 public class FileInfo {
 

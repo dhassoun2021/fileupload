@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 public interface IDataStorage {
 
-    FileInfo saveFile (InputStream inputStream, String directoryName, String fileName) throws FileUploadException;
+    FileInfo saveFile (InputStream inputStream, String fileName) throws FileUploadException;
 
     FileInfo readFile (String id) throws FileUploadException, FileNotFoundException;
 }

@@ -9,6 +9,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,7 +47,7 @@ public class FileUploadResource {
                return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),"Request size is limited to " + configuration.getMaxSizeRequest() + "octets").build();
            }
             LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
-            FileInfo fileInfo = dataStorage.saveFile(inputStream,configuration.getUploadsDir(),contentDisposition.getFileName());
+            FileInfo fileInfo = dataStorage.saveFile(inputStream,contentDisposition.getFileName());
            return Response.ok(fileInfo.getId()).build();
        } catch (FileUploadException ex) {
            LOG.log(Level.SEVERE,"Error with upload file " + ex.getMessage());
@@ -56,11 +58,31 @@ public class FileUploadResource {
 
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Path("/files")
-    public Response download (@QueryParam("id")String idFile ) {
+    @Path("/files/{idFile}")
+    public Response download (@PathParam("idFile") String idFile ) {
         try {
             FileInfo fileInfo = dataStorage.readFile(idFile);
-            return Response.ok(fileInfo.getFile(),MediaType.APPLICATION_OCTET_STREAM).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
+            StreamingOutput stream = new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException, WebApplicationException {
+                    try (FileInputStream inp = new FileInputStream(fileInfo.getFile())) {
+                        byte[] buff = new byte[1024];
+                        int len = 0;
+                        while ((len = inp.read(buff)) >= 0) {
+                            out.write(buff, 0, len);
+                        }
+                        out.flush();
+                    } catch (Exception e) {
+                        LOG.log(Level.SEVERE, "Stream file failed", e);
+                        throw new IOException("Stream error: " + e.getMessage());
+                    } finally {
+                        LOG.log(Level.INFO,"Remove stream file: " + fileInfo.getFile());
+                        fileInfo.getFile().delete();
+                    }
+                }
+            };
+
+            return Response.ok(stream).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
         } catch (FileNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (FileUploadException ex) {

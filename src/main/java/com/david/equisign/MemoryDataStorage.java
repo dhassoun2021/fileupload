@@ -13,14 +13,18 @@ public class MemoryDataStorage implements IDataStorage{
     private Map<String,FileInfo> datas = new ConcurrentHashMap<>();
 
     private FileEncryptionService fileEncryptionService;
+    private BasicConfiguration configuration;
+    private File fileTmpDirectory;
 
-    public MemoryDataStorage (FileEncryptionService fileEncryptionService) {
+    public MemoryDataStorage (FileEncryptionService fileEncryptionService, BasicConfiguration configuration) {
         this.fileEncryptionService = fileEncryptionService;
+        this.configuration = configuration;
+        fileTmpDirectory = new File( configuration.getTmpDir());
     }
 
-    public FileInfo saveFile (InputStream inputStream, String directoryName, String fileName) throws FileUploadException {
+    public FileInfo saveFile (InputStream inputStream, String fileName) throws FileUploadException {
 
-            String pathFile = directoryName + "/" + fileName;
+            String pathFile = configuration.getUploadsDir() + "/" + fileName;
             File destFile = new File(pathFile);
             fileEncryptionService.encrypt(inputStream, destFile);
             // writeToFile(inputStream,pathFile);
@@ -38,7 +42,7 @@ public class MemoryDataStorage implements IDataStorage{
         }
         try {
             File fileEncrypted = new File(fileInfo.getPath());
-            File fileDecrypted = File.createTempFile("decrypted", "tmp");
+            File fileDecrypted = File.createTempFile("decrypted", ".tmp",fileTmpDirectory);
             fileEncryptionService.decrypt(fileEncrypted, fileDecrypted);
             fileInfo.setFile(fileDecrypted);
             return fileInfo;
