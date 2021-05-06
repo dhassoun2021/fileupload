@@ -2,7 +2,7 @@ package com.david.equisign;
 
 import java.io.*;
 import java.security.*;
-import java.security.spec.*;
+
 
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -14,20 +14,29 @@ public class FileEncryptionService {
 
     public static final int AES_Key_Size = 256;
 
-    Cipher  aesCipher;
-    byte[] aesKey;
-    SecretKeySpec aeskeySpec;
+    private Cipher  aesCipher;
+    private byte[] aesKey;
+    private SecretKeySpec aeskeySpec;
+
+    private static FileEncryptionService _instance = null;
 
     /**
      * Constructor: creates ciphers
      */
-    public FileEncryptionService() throws FileUploadException {
+    private FileEncryptionService() throws FileUploadException {
         try {
             aesCipher = Cipher.getInstance("AES");
             makeKey();
      } catch (GeneralSecurityException ex) {
          throw new FileUploadException(ex.getMessage());
      }
+    }
+
+    public static FileEncryptionService getInstance() throws FileUploadException {
+        if (_instance == null) {
+            _instance = new FileEncryptionService();
+        }
+        return _instance;
     }
 
     /**
@@ -74,7 +83,6 @@ public class FileEncryptionService {
         } catch (IOException | InvalidKeyException ex) {
             throw new FileUploadException(ex.getMessage());
         }finally {
-
             try {
                 os.close();
             } catch (IOException ex) {

@@ -11,7 +11,7 @@ public class FileEncryptionTest {
 
     @Test
     public void encryptAndDecryptFile() throws Exception {
-        FileEncryptionService fileEncryption = new FileEncryptionService();
+        FileEncryptionService fileEncryption = FileEncryptionService.getInstance();
         File fileIn = new File("src/test/resources/a.txt");
         File fileEncrypted = new File("src/test/resources/b.txt");
         fileEncryption.encrypt(fileIn,fileEncrypted);
