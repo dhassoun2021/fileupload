@@ -11,8 +11,8 @@ public class FileInfo {
     private File file;
 
 
-    public FileInfo(String id, String path, String name) {
-        this.id = id;
+
+    public FileInfo(String path, String name) {
         this.path = path;
         this.name = name;
     }
@@ -38,6 +38,9 @@ public class FileInfo {
         this.file = file;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 }
 
 
