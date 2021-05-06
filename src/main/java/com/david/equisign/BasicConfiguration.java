@@ -13,6 +13,9 @@ public class BasicConfiguration extends Configuration {
     @JsonProperty
     private String uploadsDir;
 
+    @JsonProperty
+    private int maxSizeRequest;
+
     public String getUploadsDir() {
         return uploadsDir;
     }
@@ -24,5 +27,13 @@ public class BasicConfiguration extends Configuration {
 
     public int getDefaultSize() {
         return defaultSize;
+    }
+
+    public int getMaxSizeRequest() {
+        return maxSizeRequest;
+    }
+
+    public void setMaxSizeRequest(int maxSizeRequest) {
+        this.maxSizeRequest = maxSizeRequest;
     }
 }

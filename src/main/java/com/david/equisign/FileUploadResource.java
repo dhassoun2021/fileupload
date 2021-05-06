@@ -3,11 +3,14 @@ package com.david.equisign;
 
 import org.glassfish.jersey.media.multipart.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.swing.*;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +23,8 @@ public class FileUploadResource {
 
     private static final Logger LOG = Logger.getGlobal();
 
+
+
     public FileUploadResource (BasicConfiguration configuration, IDataStorage dataStorage) {
         this.configuration = configuration;
         this.dataStorage = dataStorage;
@@ -27,13 +32,20 @@ public class FileUploadResource {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/files")
     public Response upload ( @FormDataParam("fileData")FormDataContentDisposition contentDisposition,
-                             @FormDataParam("fileData")InputStream inputStream) {
+                             @FormDataParam("fileData")InputStream inputStream, @Context HttpServletRequest request) {
 
        try {
-           LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
-          FileInfo fileInfo = dataStorage.saveFile(inputStream,configuration.getUploadsDir(),contentDisposition.getFileName());
+           if (inputStream == null || contentDisposition.getFileName() == null || contentDisposition.getFileName().trim().length() == 0 ) {
+               return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),"File is mandatory").build();
+           }
+           if (request.getContentLength() > configuration.getMaxSizeRequest()) {
+               return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),"Request size is limited to " + configuration.getMaxSizeRequest() + "octets").build();
+           }
+            LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
+            FileInfo fileInfo = dataStorage.saveFile(inputStream,configuration.getUploadsDir(),contentDisposition.getFileName());
            return Response.ok(fileInfo.getId()).build();
        } catch (FileUploadException ex) {
            LOG.log(Level.SEVERE,"Error with upload file " + ex.getMessage());

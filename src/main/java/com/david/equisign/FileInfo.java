@@ -2,6 +2,7 @@ package com.david.equisign;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 
 public class FileInfo {
 
@@ -9,6 +10,7 @@ public class FileInfo {
     private String path;
     private String name;
     private File file;
+
 
     public FileInfo(String id, String path, String name) {
         this.id = id;
@@ -36,6 +38,7 @@ public class FileInfo {
     public void setFile(File file) {
         this.file = file;
     }
+
 }
 
 

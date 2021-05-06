@@ -4,3 +4,4 @@ server:
     - type: http
       port: 9000
 uploadsDir: /equisign
+maxSizeRequest : 1073741824
