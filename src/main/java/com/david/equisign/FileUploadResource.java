@@ -9,12 +9,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/equisign")
 public class FileUploadResource {
 
     private BasicConfiguration configuration;
     private IDataStorage dataStorage;
+
+    private static final Logger LOG = Logger.getGlobal();
 
     public FileUploadResource (BasicConfiguration configuration, IDataStorage dataStorage) {
         this.configuration = configuration;
@@ -23,13 +27,12 @@ public class FileUploadResource {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Path("/upload")
+    @Path("/files")
     public Response upload ( @FormDataParam("fileData")FormDataContentDisposition contentDisposition,
-                                                                  @FormDataParam("fileData")InputStream inputStream) {
+                             @FormDataParam("fileData")InputStream inputStream) {
 
        try {
-           //String pathFile = configuration.getUploadsDir() + "/" + contentDisposition.getFileName();
-          // writeToFile(inputStream, pathFile);
+           LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
           FileInfo fileInfo = dataStorage.saveFile(inputStream,configuration.getUploadsDir(),contentDisposition.getFileName());
            return Response.ok(fileInfo.getId()).build();
        } catch (IOException ex) {
@@ -40,12 +43,11 @@ public class FileUploadResource {
 
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Path("/data")
+    @Path("/files")
     public Response download (@QueryParam("id")String idFile ) {
         try {
             FileInfo fileInfo = dataStorage.readFile(idFile);
-            File file = new File (fileInfo.getPath());
-            return Response.ok(file,MediaType.APPLICATION_OCTET_STREAM).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
+            return Response.ok(fileInfo.getFile(),MediaType.APPLICATION_OCTET_STREAM).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
         } catch (FileNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (IOException ex) {

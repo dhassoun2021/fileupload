@@ -16,7 +16,8 @@ public class FileUploadApplication extends Application<BasicConfiguration> {
     public void run(BasicConfiguration basicConfiguration, Environment environment) {
         //register classes
         int defaultSize = basicConfiguration.getDefaultSize();
-        IDataStorage dataStorage = new MemoryDataStorage();
+        FileEncryptionService fileEncryptionService = new FileEncryptionService();
+        IDataStorage dataStorage = new MemoryDataStorage(fileEncryptionService);
         FileUploadResource fileUploadResource = new FileUploadResource(basicConfiguration,dataStorage);
 
         environment

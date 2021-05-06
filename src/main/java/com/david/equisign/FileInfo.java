@@ -1,5 +1,6 @@
 package com.david.equisign;
 
+import java.io.File;
 import java.io.OutputStream;
 
 public class FileInfo {
@@ -7,13 +8,14 @@ public class FileInfo {
     private String id;
     private String path;
     private String name;
-    private OutputStream outputStream;
+    private File file;
 
     public FileInfo(String id, String path, String name) {
         this.id = id;
         this.path = path;
         this.name = name;
     }
+
 
     public String getId() {
         return id;
@@ -27,11 +29,13 @@ public class FileInfo {
         return name;
     }
 
-    public OutputStream getOutputStream() {
-        return outputStream;
+    public File getFile() {
+        return file;
     }
 
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
+    public void setFile(File file) {
+        this.file = file;
     }
 }
+
+

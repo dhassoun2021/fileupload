@@ -12,13 +12,25 @@ public class MemoryDataStorage implements IDataStorage{
 
     private Map<String,FileInfo> datas = new ConcurrentHashMap<>();
 
+    private FileEncryptionService fileEncryptionService;
+
+    public MemoryDataStorage (FileEncryptionService fileEncryptionService) {
+        this.fileEncryptionService = fileEncryptionService;
+    }
+
     public FileInfo saveFile (InputStream inputStream, String directoryName, String fileName) throws IOException {
-        String pathFile = directoryName + "/" + fileName;
-        writeToFile(inputStream,pathFile);
-        String id = UUID.randomUUID().toString();
-        FileInfo fileInfo = new FileInfo(id,pathFile, fileName);
-        datas.put(id,fileInfo);
-        return  fileInfo;
+        try {
+            String pathFile = directoryName + "/" + fileName;
+            File destFile = new File(pathFile);
+            fileEncryptionService.encrypt(inputStream, destFile);
+            // writeToFile(inputStream,pathFile);
+            String id = UUID.randomUUID().toString();
+            FileInfo fileInfo = new FileInfo(id, pathFile, fileName);
+            datas.put(id, fileInfo);
+            return fileInfo;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public FileInfo readFile (String id) throws IOException {
@@ -26,17 +38,25 @@ public class MemoryDataStorage implements IDataStorage{
         if (fileInfo == null) {
             throw new FileNotFoundException ("File does not exists for id " + id);
         }
-        OutputStream outputStream = new FileOutputStream(fileInfo.getName());
-        Files.copy(Path.of(fileInfo.getPath()),outputStream);
-        fileInfo.setOutputStream(outputStream);
-        return fileInfo;
+        try {
+            //OutputStream outputStream = new FileOutputStream(fileInfo.getName());
+            File fileEncrypted = new File(fileInfo.getPath());
+            File fileDecrypted = File.createTempFile("decrypted", "tmp");
+            fileEncryptionService.decrypt(fileEncrypted, fileDecrypted);
+            //Files.copy(Path.of(fileInfo.getPath()),outputStream);
+            //fileInfo.setOutputStream(outputStream);
+            fileInfo.setFile(fileDecrypted);
+            return fileInfo;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) throws IOException {
         int read;
         final int BUFFER_LENGTH = 1024;
         final byte[] buffer = new byte[BUFFER_LENGTH];
-        OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
+        OutputStream out = new FileOutputStream(uploadedFileLocation);
         while ((read = uploadedInputStream.read(buffer)) != -1) {
             out.write(buffer, 0, read);
         }
