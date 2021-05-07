@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 
 public class FSDataStorageTest {
@@ -29,20 +30,30 @@ public class FSDataStorageTest {
     }
 
     @Test
-    public void save () throws Exception {
+    public void saveFile () throws Exception {
        FileInfo fileInfo = dataStorage.saveFile(new FileInputStream("src/test/resources/input/file.txt"),"encryptedFile.txt");
        Assert.assertNotNull(fileInfo.getId());
        removeFile(fileInfo.getPath());
     }
 
     @Test
-    public void read () throws Exception{
+    public void readFile () throws Exception{
         FileInfo fileInfo = dataStorage.saveFile(new FileInputStream("src/test/resources/input/file.txt"),"encryptedFile.txt");
         FileInfo fileInfo2 = dataStorage.readFile(fileInfo.getId());
         Assert.assertNotNull(fileInfo2);
         Assert.assertEquals(fileInfo.getId(),fileInfo2.getId());
         Assert.assertEquals(fileInfo.getPath(),fileInfo2.getPath());
         removeFile(fileInfo.getPath());
+    }
+
+    @Test
+    public void readFileShouldThrowExceptionWhenItsNotFound () {
+        try {
+            dataStorage.readFile("id");
+        } catch (Exception ex) {
+            Assert.assertTrue(ex instanceof  FileNotFoundException);
+        }
+
     }
 
     private void removeFile (String path) {
