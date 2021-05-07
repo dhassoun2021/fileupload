@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 
 
 public class FSDataStorageTest {
@@ -51,7 +51,7 @@ public class FSDataStorageTest {
         try {
             dataStorage.readFile("id");
         } catch (Exception ex) {
-            Assert.assertTrue(ex instanceof  FileNotFoundException);
+            Assert.assertTrue(ex instanceof  DataNotFoundException);
         }
 
     }

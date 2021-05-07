@@ -1,5 +1,6 @@
 package com.david.equisign;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,10 +18,13 @@ import java.util.logging.Logger;
 public class FSDataStorage implements IDataStorage{
 
     private static final Logger LOG = Logger.getGlobal();
-    private Map<String,FileInfo> datas = new ConcurrentHashMap<>();
 
     private FileEncryptionService fileEncryptionService;
     private BasicConfiguration configuration;
+
+    /**
+     * Directory where temporary decrypted files will be stored
+     */
     private File fileTmpDirectory;
     private IFileInfoDao fileInfoDao;
 
@@ -48,11 +52,11 @@ public class FSDataStorage implements IDataStorage{
 
 
 
-    public FileInfo readFile (String id) throws FileNotFoundException, FileUploadException {
+    public FileInfo readFile (String id) throws DataNotFoundException, FileUploadException {
         // Get file information
         Optional<FileInfo> optionalFileInfo = fileInfoDao.read(id);
         if (optionalFileInfo.isEmpty()) {
-            throw new FileNotFoundException ("File does not exists for id " + id);
+            throw new DataNotFoundException ("File does not exists for id " + id);
         }
         try {
             FileInfo fileInfo = optionalFileInfo.get();

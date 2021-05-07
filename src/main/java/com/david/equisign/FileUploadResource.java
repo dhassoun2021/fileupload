@@ -94,7 +94,7 @@ public class FileUploadResource {
             };
 
             return Response.ok(stream).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
-        } catch (FileNotFoundException ex) {
+        } catch (DataNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (FileUploadException ex) {
             LOG.log(Level.SEVERE,"Error with download  file " + idFile + " " +ex.getMessage());
