@@ -4,19 +4,22 @@ package com.david.equisign;
 import org.glassfish.jersey.media.multipart.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.awt.geom.AffineTransform;
+
 import java.io.*;
-import java.time.LocalDateTime;
-import java.util.List;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+/**
+ * Expose endpoint for upload and download file
+ */
 @Path("/equisign")
 public class FileUploadResource {
 
@@ -40,10 +43,10 @@ public class FileUploadResource {
                              @FormDataParam("fileData")InputStream inputStream, @Context HttpServletRequest request) {
 
        try {
-           if (inputStream == null || contentDisposition.getFileName() == null || contentDisposition.getFileName().trim().length() == 0 ) {
+           if (isEmptyFile(inputStream,contentDisposition)) {
                return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),"File is mandatory").build();
            }
-           if (request.getContentLength() > configuration.getMaxSizeRequest()) {
+           if (isLimitRequestSizeReached(request)) {
                return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),"Request size is limited to " + configuration.getMaxSizeRequest() + "octets").build();
            }
             LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
@@ -54,6 +57,14 @@ public class FileUploadResource {
            return Response.serverError().build();
        }
 
+    }
+
+    private boolean isEmptyFile (InputStream inputStream, FormDataContentDisposition contentDisposition) {
+       return (inputStream == null || contentDisposition.getFileName() == null || contentDisposition.getFileName().trim().length() == 0);
+    }
+
+    private boolean isLimitRequestSizeReached (HttpServletRequest request) {
+        return (request.getContentLength() > configuration.getMaxSizeRequest());
     }
 
     @GET
