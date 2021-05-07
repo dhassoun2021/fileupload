@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -12,7 +13,7 @@ public class FileEncryptionTest {
     @Test
     public void encryptAndDecryptFile() throws Exception {
         FileEncryptionService fileEncryption = FileEncryptionService.getInstance();
-        File fileIn = new File("src/test/resources/a.txt");
+        FileInputStream fileIn = new FileInputStream("src/test/resources/a.txt");
         File fileEncrypted = new File("src/test/resources/b.txt");
         fileEncryption.encrypt(fileIn,fileEncrypted);
         File fileDecrypted = new File("src/test/resources/c.txt");

@@ -51,28 +51,7 @@ public class FileEncryptionService {
     }
 
 
-    /**
-     * Encrypts and then copies the contents of a given file.
-     */
-    public void encrypt(File in, File out)  throws FileUploadException {
-        CipherOutputStream os = null;
-        try {
-            aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
-            FileInputStream is = new FileInputStream(in);
-            os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
-            copy(is, os);
-        } catch (IOException | InvalidKeyException ex) {
-            throw new FileUploadException(ex.getMessage());
-        }finally {
-            try {
-                if (os != null) {
-                    os.close();
-                }
-            } catch (IOException ex) {
-                throw new FileUploadException(ex.getMessage());
-            }
-        }
-    }
+
 
     public void encrypt(InputStream in, File out) throws FileUploadException {
         CipherOutputStream os = null;
@@ -118,6 +97,8 @@ public class FileEncryptionService {
             }
         }
     }
+
+
 
     /**
      * Copies a stream.
