@@ -36,13 +36,6 @@ public class FileInfo {
         this.id = id;
     }
 
-    public FileInfo(String id, String path) {
-        this.path = path;
-        this.name = name;
-        this.id = id;
-    }
-
-
     public String getId() {
         return id;
     }
