@@ -8,12 +8,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Store file uploaded in local file system
  */
 public class FSDataStorage implements IDataStorage{
 
+    private static final Logger LOG = Logger.getGlobal();
     private Map<String,FileInfo> datas = new ConcurrentHashMap<>();
 
     private FileEncryptionService fileEncryptionService;
@@ -36,8 +39,10 @@ public class FSDataStorage implements IDataStorage{
             //encrypt file uploaded
             fileEncryptionService.encrypt(inputStream, destFile);
 
+            LOG.log(Level.INFO,"File was saved and ciphered at " + pathFile);
             FileInfo fileInfo = new FileInfo(idFile,pathFile,fileName);
             fileInfoDao.save(fileInfo);
+            LOG.log(Level.INFO,"File information was stored");
             return fileInfo;
     }
 
@@ -58,6 +63,7 @@ public class FSDataStorage implements IDataStorage{
 
             //decrypt file
             fileEncryptionService.decrypt(fileEncrypted, fileDecrypted);
+            LOG.log(Level.INFO,"File with path " + fileInfo.getPath() + " was decrypted sucessfully");
             fileInfo.setFile(fileDecrypted);
             return fileInfo;
         } catch (IOException ex) {
