@@ -20,9 +20,7 @@ public class FileInfoDao implements IFileInfoDao{
     }
 
     public void save (FileInfo fileInfo) {
-        String id = UUID.randomUUID().toString();
-        fileInfo.setId(id);
-        datas.put(id,fileInfo);
+        datas.put(fileInfo.getId(),fileInfo);
     }
 
     public Optional <FileInfo> read (String idFile) {

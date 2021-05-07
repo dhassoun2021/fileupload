@@ -29,15 +29,19 @@ public class FSDataStorage implements IDataStorage{
     }
 
     public FileInfo saveFile (InputStream inputStream, String fileName) throws FileUploadException {
-            String pathFile = configuration.getUploadsDir() + "/" + fileName;
+            String idFile = UUID.randomUUID().toString();
+            String pathFile = configuration.getUploadsDir() + "/" + idFile;
             File destFile = new File(pathFile);
 
             //encrypt file uploaded
             fileEncryptionService.encrypt(inputStream, destFile);
-            FileInfo fileInfo = new FileInfo(pathFile, fileName);
+
+            FileInfo fileInfo = new FileInfo(idFile,pathFile,fileName);
             fileInfoDao.save(fileInfo);
             return fileInfo;
     }
+
+
 
     public FileInfo readFile (String id) throws FileNotFoundException, FileUploadException {
         // Get file information

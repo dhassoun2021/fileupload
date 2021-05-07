@@ -32,6 +32,7 @@ public class FSDataStorageTest {
     public void save () throws Exception {
        FileInfo fileInfo = dataStorage.saveFile(new FileInputStream("src/test/resources/input/file.txt"),"encryptedFile.txt");
        Assert.assertNotNull(fileInfo.getId());
+       removeFile(fileInfo.getPath());
     }
 
     @Test
@@ -41,12 +42,16 @@ public class FSDataStorageTest {
         Assert.assertNotNull(fileInfo2);
         Assert.assertEquals(fileInfo.getId(),fileInfo2.getId());
         Assert.assertEquals(fileInfo.getPath(),fileInfo2.getPath());
+        removeFile(fileInfo.getPath());
+    }
+
+    private void removeFile (String path) {
+        File file = new File(path);
+        file.delete();
     }
 
     @After
     public void cleanUp () {
-       File file = new File("src/test/resources/input/encryptedFile.txt");
-       file.delete();
         File directoryTmp = new File("src/test/resources/tmp");
         File [] files = directoryTmp.listFiles();
         if (files != null && files.length > 0) {

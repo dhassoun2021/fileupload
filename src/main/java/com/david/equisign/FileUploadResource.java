@@ -48,7 +48,7 @@ public class FileUploadResource {
            }
             LOG.log(Level.INFO,"Receive file " + contentDisposition.getFileName());
             FileInfo fileInfo = dataStorage.saveFile(inputStream,contentDisposition.getFileName());
-           return Response.ok(fileInfo.getId()).build();
+           return Response.ok(fileInfo).build();
        } catch (FileUploadException ex) {
            LOG.log(Level.SEVERE,"Error with upload file " + ex.getMessage());
            return Response.serverError().build();

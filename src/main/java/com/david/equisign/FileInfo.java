@@ -1,5 +1,7 @@
 package com.david.equisign;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.File;
 
 /**
@@ -15,19 +17,29 @@ public class FileInfo {
     /**
      * Abolute path of file
      */
+    @JsonIgnore
     private String path;
 
     /**
      * relative name of file
      */
     private String name;
+
+    @JsonIgnore
     private File file;
 
 
 
-    public FileInfo(String path, String name) {
+    public FileInfo(String id, String path, String name) {
         this.path = path;
         this.name = name;
+        this.id = id;
+    }
+
+    public FileInfo(String id, String path) {
+        this.path = path;
+        this.name = name;
+        this.id = id;
     }
 
 
