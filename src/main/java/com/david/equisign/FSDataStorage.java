@@ -1,14 +1,10 @@
 package com.david.equisign;
 
-import javax.xml.crypto.Data;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
+
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,18 +32,49 @@ public class FSDataStorage implements IDataStorage{
     }
 
     public FileInfo saveFile (InputStream inputStream, String fileName) throws FileUploadException {
-            String idFile = UUID.randomUUID().toString();
-            String pathFile = configuration.getUploadsDir() + "/" + idFile;
-            File destFile = new File(pathFile);
+        FileOutputStream outputStream = null;
+        InputStream streamData= null;
 
-            //encrypt file uploaded
-            fileEncryptionService.encrypt(inputStream, destFile);
+        streamData = inputStream;
+        try {
+                String idFile = UUID.randomUUID().toString();
+                String pathFile = configuration.getUploadsDir() + "/" + idFile;
+                outputStream = new FileOutputStream(pathFile);
 
-            LOG.log(Level.INFO,"File was saved and ciphered at " + pathFile);
-            FileInfo fileInfo = new FileInfo(idFile,pathFile,fileName);
-            fileInfoDao.save(fileInfo);
-            LOG.log(Level.INFO,"File information was stored");
-            return fileInfo;
+                //encrypt file uploaded
+                streamData = encryptData(inputStream);
+
+                //Copy file on file system
+                CopyUtil.copy(streamData, outputStream);
+                LOG.log(Level.INFO, "File was saved and ciphered at " + pathFile);
+
+                //Store fine information
+                FileInfo fileInfo = new FileInfo(idFile, pathFile, fileName);
+                fileInfoDao.save(fileInfo);
+                LOG.log(Level.INFO, "File information was stored");
+                return fileInfo;
+            } catch (IOException ex) {
+                throw new FileUploadException(ex.getMessage());
+            } finally {
+            try {
+                if (streamData != null) {
+                    streamData.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException ex) {
+                throw new FileUploadException(ex.getMessage());
+            }
+        }
+    }
+
+    private InputStream encryptData (InputStream inputStream) throws FileUploadException {
+        return fileEncryptionService.cipher(inputStream);
+    }
+
+    private InputStream decipherData (InputStream inputStream) throws FileUploadException {
+        return fileEncryptionService.decipher(inputStream);
     }
 
 
@@ -55,23 +82,22 @@ public class FSDataStorage implements IDataStorage{
     public FileInfo readFile (String id) throws DataNotFoundException, FileUploadException {
         // Get file information
         Optional<FileInfo> optionalFileInfo = fileInfoDao.read(id);
+        InputStream streamingFile = null;
         if (optionalFileInfo.isEmpty()) {
             throw new DataNotFoundException ("File does not exists for id " + id);
         }
         try {
             FileInfo fileInfo = optionalFileInfo.get();
-            File fileEncrypted = new File(fileInfo.getPath());
-
-            //create temp file for decription
-            File fileDecrypted = File.createTempFile("decrypted", ".tmp",fileTmpDirectory);
+            streamingFile = new FileInputStream(fileInfo.getPath());
 
             //decrypt file
-            fileEncryptionService.decrypt(fileEncrypted, fileDecrypted);
+            streamingFile = decipherData(streamingFile);
             LOG.log(Level.INFO,"File with path " + fileInfo.getPath() + " was decrypted sucessfully");
-            fileInfo.setFile(fileDecrypted);
+            fileInfo.setStreamData(streamingFile);
             return fileInfo;
         } catch (IOException ex) {
             throw new FileUploadException(ex.getMessage());
+
         }
     }
 

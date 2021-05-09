@@ -12,7 +12,7 @@ import javax.crypto.spec.*;
  */
 public class FileEncryptionService {
 
-    public static final int AES_Key_Size = 256;
+    public static final int AES_KEY_SIZE = 256;
 
     private Cipher  aesCipher;
     private byte[] aesKey;
@@ -44,7 +44,7 @@ public class FileEncryptionService {
      */
     private void makeKey() throws NoSuchAlgorithmException {
         KeyGenerator kgen = KeyGenerator.getInstance("AES");
-        kgen.init(AES_Key_Size);
+        kgen.init(AES_KEY_SIZE);
         SecretKey key = kgen.generateKey();
         aesKey = key.getEncoded();
         aeskeySpec = new SecretKeySpec(aesKey, "AES");
@@ -69,6 +69,27 @@ public class FileEncryptionService {
             }
         }
     }
+
+    public InputStream cipher(InputStream in) throws FileUploadException {
+        try {
+            aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
+            return new CipherInputStream(in, aesCipher);
+        } catch (InvalidKeyException ex) {
+            throw new FileUploadException(ex.getMessage());
+        }
+    }
+
+    public InputStream decipher(InputStream in) throws FileUploadException {
+        try {
+            aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
+            return new CipherInputStream(in, aesCipher);
+        } catch (InvalidKeyException ex) {
+            throw new FileUploadException(ex.getMessage());
+        }
+    }
+
+
+
 
     /**
      * Decrypts and then copies the contents of a given file.

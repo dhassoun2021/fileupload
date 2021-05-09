@@ -73,10 +73,11 @@ public class FileUploadResource {
     public Response download (@PathParam("idFile") String idFile ) {
         try {
             FileInfo fileInfo = dataStorage.readFile(idFile);
-            StreamingOutput stream = new StreamingOutput() {
+           /* StreamingOutput stream = new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException, WebApplicationException {
-                    try (FileInputStream inp = new FileInputStream(fileInfo.getFile())) {
+                    LOG.log(Level.INFO,"in write " + out);
+                    try (InputStream inp = fileInfo.getStreamData()) {
                         byte[] buff = new byte[1024];
                         int len = 0;
                         while ((len = inp.read(buff)) >= 0) {
@@ -86,20 +87,23 @@ public class FileUploadResource {
                     } catch (Exception e) {
                         LOG.log(Level.SEVERE, "Stream file failed", e);
                         throw new IOException("Stream error: " + e.getMessage());
-                    } finally {
-                        LOG.log(Level.INFO,"Remove stream file: " + fileInfo.getFile());
-                        fileInfo.getFile().delete();
                     }
                 }
-            };
+            };*/
 
-            return Response.ok(stream).header("content-disposition","attachment; filename = "+ fileInfo.getName()).build();
+            return Response.ok(fileInfo.getStreamData()).header("content-disposition", "attachment; filename = " + fileInfo.getName()).build();
         } catch (DataNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (FileUploadException ex) {
-            LOG.log(Level.SEVERE,"Error with download  file " + idFile + " " +ex.getMessage());
+            LOG.log(Level.SEVERE, "Error with download  file " + idFile + " " + ex.getMessage());
+            ex.printStackTrace();
+            return Response.serverError().build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, ex.getMessage());
+            ex.printStackTrace();
             return Response.serverError().build();
         }
+
 
     }
 

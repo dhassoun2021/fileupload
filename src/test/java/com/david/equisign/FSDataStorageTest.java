@@ -24,7 +24,7 @@ public class FSDataStorageTest {
     public void init () throws Exception {
         MockitoAnnotations.initMocks(this);
         FileEncryptionService encryptionService = FileEncryptionService.getInstance();
-        Mockito.when(basicConfigurationMock.getUploadsDir()).thenReturn("src/test/resources/input");
+        Mockito.when(basicConfigurationMock.getUploadsDir()).thenReturn("src/test/resources/tmp");
         Mockito.when(basicConfigurationMock.getTmpDir()).thenReturn("src/test/resources/tmp");
         dataStorage = new FSDataStorage(encryptionService, FileInfoDao.getInstance(), basicConfigurationMock);
     }
@@ -43,7 +43,8 @@ public class FSDataStorageTest {
         Assert.assertNotNull(fileInfo2);
         Assert.assertEquals(fileInfo.getId(),fileInfo2.getId());
         Assert.assertEquals(fileInfo.getPath(),fileInfo2.getPath());
-        removeFile(fileInfo.getPath());
+        fileInfo2.getStreamData().close();
+
     }
 
     @Test
