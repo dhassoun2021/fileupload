@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FileInfoDao implements IFileInfoDao{
 
-    private static FileInfoDao fileInfoDao = new FileInfoDao();
+    private static FileInfoDao _instance = new FileInfoDao();
 
 
     private Map<String,FileInfo> datas = new ConcurrentHashMap<>();
@@ -32,7 +32,7 @@ public class FileInfoDao implements IFileInfoDao{
     }
 
     public static FileInfoDao getInstance() {
-        return fileInfoDao;
+        return _instance;
     }
 
 

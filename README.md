@@ -12,7 +12,6 @@ To set parmeters you need to update upolad.yaml file, specified in src/main/reso
 In this file you would update theses parameters:
 
 - uploadsDir: the directory where file uploaded will be stored
-- tmpDir: the directory where decrypyted file will be stored
 - maxSizeRequest : Maximum size on request content in octet
 
 ## How to run it
