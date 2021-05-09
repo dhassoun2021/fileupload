@@ -25,7 +25,6 @@ public class FSDataStorageTest {
         MockitoAnnotations.initMocks(this);
         FileEncryptionService encryptionService = FileEncryptionService.getInstance();
         Mockito.when(basicConfigurationMock.getUploadsDir()).thenReturn("src/test/resources/tmp");
-        Mockito.when(basicConfigurationMock.getTmpDir()).thenReturn("src/test/resources/tmp");
         dataStorage = new FSDataStorage(encryptionService, FileInfoDao.getInstance(), basicConfigurationMock);
     }
 

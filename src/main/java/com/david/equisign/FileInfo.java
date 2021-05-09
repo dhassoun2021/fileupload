@@ -20,12 +20,12 @@ public class FileInfo {
      * Abolute path of file
      */
     @JsonIgnore
-    private String path;
+    private final String path;
 
     /**
      * relative name of file
      */
-    private String name;
+    private final String name;
 
     @JsonIgnore
     private File file;
@@ -50,14 +50,6 @@ public class FileInfo {
 
     public String getName() {
         return name;
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
     }
 
     @Override

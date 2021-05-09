@@ -53,22 +53,6 @@ public class FileEncryptionService {
 
 
 
-    public void encrypt(InputStream in, File out) throws FileUploadException {
-        CipherOutputStream os = null;
-        try {
-            aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
-            os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
-            copy(in, os);
-        } catch (IOException | InvalidKeyException ex) {
-            throw new FileUploadException(ex.getMessage());
-        }finally {
-            try {
-                os.close();
-            } catch (IOException ex) {
-                throw new FileUploadException(ex.getMessage());
-            }
-        }
-    }
 
     public InputStream cipher(InputStream in) throws FileUploadException {
         try {
@@ -88,47 +72,4 @@ public class FileEncryptionService {
         }
     }
 
-
-
-
-    /**
-     * Decrypts and then copies the contents of a given file.
-     */
-    public void decrypt(File in, File out) throws FileUploadException {
-        CipherInputStream is = null;
-        FileOutputStream os = null;
-        try {
-            aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
-            is = new CipherInputStream(new FileInputStream(in), aesCipher);
-            os = new FileOutputStream(out);
-            copy(is, os);
-        } catch (IOException | InvalidKeyException ex) {
-            throw new FileUploadException(ex.getMessage());
-        } finally {
-
-            try {
-                if (is != null) {
-                    is.close();
-                }
-                if (os != null) {
-                    os.close();
-                }
-            } catch (IOException ex) {
-                throw new FileUploadException(ex.getMessage());
-            }
-        }
-    }
-
-
-
-    /**
-     * Copies a stream.
-     */
-    private void copy(InputStream is, OutputStream os) throws IOException {
-        int i;
-        byte[] b = new byte[1024];
-        while((i=is.read(b))!=-1) {
-            os.write(b, 0, i);
-        }
-    }
 }

@@ -28,8 +28,6 @@ public class FileUploadResource {
 
     private static final Logger LOG = Logger.getGlobal();
 
-
-
     public FileUploadResource (BasicConfiguration configuration, IDataStorage dataStorage) {
         this.configuration = configuration;
         this.dataStorage = dataStorage;
@@ -73,38 +71,15 @@ public class FileUploadResource {
     public Response download (@PathParam("idFile") String idFile ) {
         try {
             FileInfo fileInfo = dataStorage.readFile(idFile);
-           /* StreamingOutput stream = new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws IOException, WebApplicationException {
-                    LOG.log(Level.INFO,"in write " + out);
-                    try (InputStream inp = fileInfo.getStreamData()) {
-                        byte[] buff = new byte[1024];
-                        int len = 0;
-                        while ((len = inp.read(buff)) >= 0) {
-                            out.write(buff, 0, len);
-                        }
-                        out.flush();
-                    } catch (Exception e) {
-                        LOG.log(Level.SEVERE, "Stream file failed", e);
-                        throw new IOException("Stream error: " + e.getMessage());
-                    }
-                }
-            };*/
-
             return Response.ok(fileInfo.getStreamData()).header("content-disposition", "attachment; filename = " + fileInfo.getName()).build();
         } catch (DataNotFoundException ex) {
+            LOG.log(Level.SEVERE, "File with id " + idFile + "was not found" + ex.getMessage());
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (FileUploadException ex) {
             LOG.log(Level.SEVERE, "Error with download  file " + idFile + " " + ex.getMessage());
             ex.printStackTrace();
             return Response.serverError().build();
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
-            ex.printStackTrace();
-            return Response.serverError().build();
         }
-
-
     }
 
 

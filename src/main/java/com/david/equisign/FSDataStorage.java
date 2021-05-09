@@ -21,14 +21,12 @@ public class FSDataStorage implements IDataStorage{
     /**
      * Directory where temporary decrypted files will be stored
      */
-    private File fileTmpDirectory;
     private IFileInfoDao fileInfoDao;
 
     public FSDataStorage(FileEncryptionService fileEncryptionService, IFileInfoDao fileInfoDao, BasicConfiguration configuration) {
         this.fileEncryptionService = fileEncryptionService;
         this.configuration = configuration;
         this.fileInfoDao = fileInfoDao;
-        fileTmpDirectory = new File( configuration.getTmpDir());
     }
 
     public FileInfo saveFile (InputStream inputStream, String fileName) throws FileUploadException {
