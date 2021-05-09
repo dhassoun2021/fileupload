@@ -28,8 +28,6 @@ public class FileInfo {
     private final String name;
 
     @JsonIgnore
-    private File file;
-
     private InputStream streamData;
 
 
